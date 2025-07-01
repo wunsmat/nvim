@@ -1,6 +1,6 @@
 M = {
-  "tpope/vim-sleuth",
-  enabled = true
+	"tpope/vim-sleuth",
+	enabled = true,
 }
 
 return M
