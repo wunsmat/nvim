@@ -1,4 +1,3 @@
--- lua/plugins/java.lua
 return {
 	"mfussenegger/nvim-jdtls",
 	ft = { "java" },
@@ -8,6 +7,30 @@ return {
 	},
 	config = function()
 		local jdtls = require("jdtls")
+
+		-- Function to download Lombok JAR if not present
+		local function ensure_lombok()
+			local mason_path = vim.fn.stdpath("data") .. "/mason"
+			local lombok_path = mason_path .. "/packages/jdtls/lombok.jar"
+
+			if vim.fn.filereadable(lombok_path) == 0 then
+				print("Downloading Lombok...")
+				local lombok_url = "https://projectlombok.org/downloads/lombok.jar"
+
+				-- Create directory if it doesn't exist
+				vim.fn.mkdir(vim.fn.fnamemodify(lombok_path, ":h"), "p")
+
+				-- Download using curl (you can also use wget)
+				local download_cmd = string.format("curl -L -o '%s' '%s'", lombok_path, lombok_url)
+				local result = vim.fn.system(download_cmd)
+
+				if vim.v.shell_error == 0 then
+					print("Lombok downloaded successfully!")
+				else
+					print("Failed to download Lombok: " .. result)
+				end
+			end
+		end
 
 		-- Function to find the root directory of the Java project
 		local function get_jdtls_root()
@@ -39,30 +62,45 @@ return {
 			local jdtls_path = mason_path .. "/packages/jdtls"
 			local jdtls_bin = jdtls_path .. "/bin/jdtls"
 
+			-- Lombok JAR path - download if not exists
+			local lombok_path = mason_path .. "/packages/jdtls/lombok.jar"
+
 			-- Get blink.cmp capabilities
 			local capabilities = require("blink.cmp").get_lsp_capabilities()
 
+			-- Build the command with Lombok support
+			local cmd = {
+				java_home .. "/bin/java",
+				"-Declipse.application=org.eclipse.jdt.ls.core.id1",
+				"-Dosgi.bundles.defaultStartLevel=4",
+				"-Declipse.product=org.eclipse.jdt.ls.core.product",
+				"-Dlog.protocol=true",
+				"-Dlog.level=ALL",
+				"-Xmx2g",
+				"--add-modules=ALL-SYSTEM",
+				"--add-opens",
+				"java.base/java.util=ALL-UNNAMED",
+				"--add-opens",
+				"java.base/java.lang=ALL-UNNAMED",
+			}
+
+			-- Add Lombok to the Java agent if the JAR exists
+			if vim.fn.filereadable(lombok_path) == 1 then
+				table.insert(cmd, "-javaagent:" .. lombok_path)
+			end
+
+			-- Add the remaining jdtls arguments
+			vim.list_extend(cmd, {
+				"-jar",
+				vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar"),
+				"-configuration",
+				jdtls_path .. "/config_linux", -- Use config_mac on macOS, config_win on Windows
+				"-data",
+				get_workspace_dir(),
+			})
+
 			local config = {
-				cmd = {
-					java_home .. "/bin/java",
-					"-Declipse.application=org.eclipse.jdt.ls.core.id1",
-					"-Dosgi.bundles.defaultStartLevel=4",
-					"-Declipse.product=org.eclipse.jdt.ls.core.product",
-					"-Dlog.protocol=true",
-					"-Dlog.level=ALL",
-					"-Xmx2g",
-					"--add-modules=ALL-SYSTEM",
-					"--add-opens",
-					"java.base/java.util=ALL-UNNAMED",
-					"--add-opens",
-					"java.base/java.lang=ALL-UNNAMED",
-					"-jar",
-					vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar"),
-					"-configuration",
-					jdtls_path .. "/config_linux", -- Use config_mac on macOS, config_win on Windows
-					"-data",
-					get_workspace_dir(),
-				},
+				cmd = cmd,
 
 				root_dir = get_jdtls_root(),
 
@@ -182,6 +220,9 @@ return {
 		vim.api.nvim_create_autocmd("FileType", {
 			pattern = "java",
 			callback = function()
+				-- Ensure Lombok is available
+				ensure_lombok()
+
 				local config = get_jdtls_config()
 				jdtls.start_or_attach(config)
 			end,

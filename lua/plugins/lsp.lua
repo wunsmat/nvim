@@ -1,4 +1,3 @@
--- lua/plugins/lsp.lua
 M = {
 	-- Main LSP Configuration
 	"neovim/nvim-lspconfig",
