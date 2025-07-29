@@ -1,7 +1,16 @@
 return {
 	"ibhagwan/fzf-lua",
 	dependencies = { "echasnovski/mini.icons" },
-	opts = {},
+	opts = {
+		winopts = {
+			fullscreen = true,
+			backdrop = 60,
+			preview = {
+				layout = "vertical",
+				vertical = "down:70%",
+			},
+		},
+	},
 	keys = {
 		{
 			"<leader>sf",
