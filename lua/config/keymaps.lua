@@ -3,6 +3,13 @@ vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+-- vim.keymap.set("n", "<Esc>", function()
+-- 	vim.cmd("nohlsearch")
+-- 	local char = require("flash.plugins.char")
+-- 	if char.state then
+-- 		char.state:hide()
+-- 	end
+-- end)
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
@@ -18,8 +25,8 @@ vim.keymap.set("n", "<leader>t", ":terminal<CR>", { desc = "Open terminal" })
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set("t", "<Esc><Esc>", function()
-    vim.cmd("stopinsert")
-    vim.bo.modifiable = true
+	vim.cmd("stopinsert")
+	vim.bo.modifiable = true
 end, { desc = "Exit terminal mode" })
 
 -- Keybinds to make split navigation easier.

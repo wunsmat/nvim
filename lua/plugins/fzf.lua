@@ -20,6 +20,13 @@ return {
 			desc = "Find Files in project directory",
 		},
 		{
+			"<leader>si",
+			function()
+				require("fzf-lua").files({ cwd = "/home/vagrant/dev/repos/IMPACT" })
+			end,
+			desc = "Find files in the entire IMPACT project",
+		},
+		{
 			"<leader>sg",
 			function()
 				require("fzf-lua").live_grep()
