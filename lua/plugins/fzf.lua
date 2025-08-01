@@ -10,6 +10,18 @@ return {
 				vertical = "down:70%",
 			},
 		},
+		previewers = {
+			builtin = {
+				extensions = {
+					["png"] = { "timg" },
+					["jpg"] = { "timg" },
+					["jpeg"] = { "timg" },
+					["gif"] = { "timg" },
+					["webp"] = { "timg" },
+					["svg"] = { "chafa" },
+				},
+			},
+		},
 	},
 	keys = {
 		{
@@ -20,7 +32,7 @@ return {
 			desc = "Find Files in project directory",
 		},
 		{
-			"<leader>si",
+			"<leader>sif",
 			function()
 				require("fzf-lua").files({ cwd = "/home/vagrant/dev/repos/IMPACT" })
 			end,
@@ -32,6 +44,13 @@ return {
 				require("fzf-lua").live_grep()
 			end,
 			desc = "Find by grepping in project directory",
+		},
+		{
+			"<leader>sig",
+			function()
+				require("fzf-lua").live_grep({ cwd = "/home/vagrant/dev/repos/IMPACT" })
+			end,
+			desc = "Find by grepping in IMPACT directory",
 		},
 		{
 			"<leader>sc",
