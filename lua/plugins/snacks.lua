@@ -1,11 +1,9 @@
-return {
+M = {
 	"folke/snacks.nvim",
-	priority = 1000,
 	---@type snacks.Config
 	opts = {
-		image = {
-			enabled = true,
-		},
 		picker = {},
 	},
 }
+
+return M

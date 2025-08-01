@@ -1,4 +1,4 @@
-return {
+M = {
 	"ibhagwan/fzf-lua",
 	dependencies = { "echasnovski/mini.icons" },
 	opts = {
@@ -131,3 +131,5 @@ return {
 		},
 	},
 }
+
+return M
