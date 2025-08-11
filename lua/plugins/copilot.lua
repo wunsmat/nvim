@@ -1,10 +1,5 @@
-M = {
-	"zbirenbaum/copilot.lua",
-	cmd = "Copilot",
-	event = "InsertEnter",
-	config = function()
-		require("copilot").setup({})
-	end,
-}
+vim.pack.add({
+	"https://github.com/zbirenbaum/copilot.lua",
+})
 
-return M
+require("copilot").setup()
