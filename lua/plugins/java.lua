@@ -87,6 +87,8 @@ return {
 			-- Add Lombok to the Java agent if the JAR exists
 			if vim.fn.filereadable(lombok_path) == 1 then
 				table.insert(cmd, "-javaagent:" .. lombok_path)
+				-- Enable annotation processing for Lombok
+				table.insert(cmd, "-Xbootclasspath/a:" .. lombok_path)
 			end
 
 			-- Add the remaining jdtls arguments
@@ -106,6 +108,10 @@ return {
 
 				capabilities = capabilities,
 
+				init_options = {
+					bundles = {},
+				},
+
 				settings = {
 					java = {
 						eclipse = {
@@ -117,6 +123,22 @@ return {
 								{
 									name = "JavaSE-21",
 									path = java_home,
+								},
+							},
+						},
+						compile = {
+							nullAnalysis = {
+								nonnull = {
+									"javax.annotation.Nonnull",
+									"org.eclipse.jdt.annotation.NonNull",
+									"org.springframework.lang.NonNull",
+								},
+							},
+						},
+						jdt = {
+							ls = {
+								lombokSupport = {
+									enabled = true,
 								},
 							},
 						},
@@ -137,6 +159,18 @@ return {
 							settings = {
 								url = vim.fn.stdpath("config") .. "/lang-servers/intellij-java-google-style.xml",
 								profile = "GoogleStyle",
+							},
+						},
+						cleanup = {
+							actionsOnSave = {
+								"addOverride",
+								"addDeprecated",
+								"stringConcatToTextBlock",
+								"invertEquals",
+								"addFinalModifier",
+								"instanceofPatternMatch",
+								"lambdaExpression",
+								"switchExpression",
 							},
 						},
 					},
@@ -200,11 +234,11 @@ return {
 					-- Standard LSP keymaps (if not already set globally)
 					map("grn", vim.lsp.buf.rename, "[R]e[n]ame")
 					map("gra", vim.lsp.buf.code_action, "[G]oto Code [A]ction", { "n", "x" })
-					map("grr", require("fzf-lua").lsp_references, "[G]oto [R]eferences")
-					map("gri", require("fzf-lua").lsp_implementations, "[G]oto [I]mplementation")
-					map("grd", require("fzf-lua").lsp_definitions, "[G]oto [D]efinition")
+					map("grr", function() Snacks.picker.lsp_references() end, "[G]oto [R]eferences")
+					map("gri", function() Snacks.picker.lsp_implementations() end, "[G]oto [I]mplementation")
+					map("grd", function() Snacks.picker.lsp_definitions() end, "[G]oto [D]efinition")
 					map("grD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-					map("grt", require("fzf-lua").lsp_typedefs, "[G]oto [T]ype Definition")
+					map("grt", function() Snacks.picker.lsp_type_definitions() end, "[G]oto [T]ype Definition")
 
 					-- Enable inlay hints if supported
 					if client.supports_method("textDocument/inlayHint") then
